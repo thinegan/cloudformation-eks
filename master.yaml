@@ -93,18 +93,6 @@ Parameters:
     Description: "Node Instance Naming Group."
     Type: "String"
 
-  PMALBIngressControllerIAMPolicy:
-    Description: "The node instance role policy."
-    Type: "String"
-
-  PMEKSExternalDNSPolicy:
-    Description: "The node instance role policy."
-    Type: "String"
-
-  PMEKSClusterAutoScalerPolicy:
-    Description: "The node instance role policy."
-    Type: "String"
-
   PMUserArn1:
     Description: "User Arn 1"
     Type: "String"
