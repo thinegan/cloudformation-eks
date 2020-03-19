@@ -1,0 +1,135 @@
+# Prerequisites
+# Before you can start this process, you need the following:
+# - Your AWS account must have one VPC available to be created in the selected region
+# - Amazon EC2 key pair
+# - Installed Domain in Route 53.
+#
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+    This is a master template to create a EKS Cluster Architecture.
+    Last Modified: 19th March 2020
+    Author: Thinegan Ratnam <thinegan@thinegan.com>
+
+###############################################################################################################
+
+Parameters: 
+
+  PMOWNIP:
+    Description: "Update this with your own office/home public ip address"
+    Type: "String"
+
+  PMKeyName:
+    Description: "Enter an existing EC2 KeyPair."
+    Type: AWS::EC2::KeyPair::KeyName
+
+  PMTemplateURL:
+    Description: "Trying running from s3 bucket."
+    Type: "String"
+
+  PMInstanceType: 
+    Description: "Enter t2.micro or m1.small. Default is t2.micro."
+    Type: "String"
+    Default: "t2.medium"
+
+  PMEnvVPC:
+    Description: "Stack VPC Environment"
+    Type: "String"
+
+  PMHostedZone:
+    Description: "Enter an existing Hosted Zone."
+    Type: "String"
+
+  PMNodeImageId:
+    Description: "Node Images based from Region."
+    Type: AWS::EC2::Image::Id
+
+  PMGenNodeTypeOverride:
+    Type: String
+    Description: "multiple spot instances to override(seperated by comma)"
+    Default: "t3.medium,t3.large,t3.xlarge"
+
+  PMHiNodeTypeOverride:
+    Type: String
+    Description: "multiple spot instances to override(seperated by comma)"
+    Default: "t3.medium,t3.large,t3.xlarge"
+
+  PMEKSVersion:
+    Description: "EKS Cluster Version."
+    Type: "String"
+
+  PMGenNodeASGMinSize:
+    Description: "Node Auto Scaling Group Min Size."
+    Type: "Number"
+
+  PMGenNodeASGMaxSize:
+    Description: "Node Auto Scaling Group Max Size."
+    Type: "Number"
+
+  PMGenNodeASGDesireSize:
+    Description: "Node Auto Scaling Group Desired Capacity."
+    Type: "Number"
+
+  PMHiNodeASGMinSize:
+    Description: "Node Auto Scaling Group Min Size."
+    Type: "Number"
+
+  PMHiNodeASGMaxSize:
+    Description: "Node Auto Scaling Group Max Size."
+    Type: "Number"
+
+  PMHiNodeASGDesireSize:
+    Description: "Node Auto Scaling Group Desired Capacity."
+    Type: "Number"
+
+  PMNodeVolumeSize:
+    Description: "Node Volume Size."
+    Type: "Number"
+
+  PMGenNodeGroupName:
+    Description: "Node Instance Naming Group."
+    Type: "String"
+
+  PMHiNodeGroupName:
+    Description: "Node Instance Naming Group."
+    Type: "String"
+
+  PMALBIngressControllerIAMPolicy:
+    Description: "The node instance role policy."
+    Type: "String"
+
+  PMEKSExternalDNSPolicy:
+    Description: "The node instance role policy."
+    Type: "String"
+
+  PMEKSClusterAutoScalerPolicy:
+    Description: "The node instance role policy."
+    Type: "String"
+
+  PMUserArn1:
+    Description: "User Arn 1"
+    Type: "String"
+
+  PMUserArn2:
+    Description: "User Arn 2"
+    Type: "String"
+
+####### Condition Setup #######
+Conditions:
+  UseProdEnv: !Equals [ !Ref "PMInstanceType", "prod" ]
+
+###############################################################################################################
+###############################################################################################################
+
+Resources:
+
+  MyIAMRole:
+    Type: "AWS::CloudFormation::Stack"
+    Properties:
+      TemplateURL: !Sub "${PMTemplateURL}/eks-iam.yaml"
+      TimeoutInMinutes: '5'
+      Parameters:
+        PMServerEnv: !Ref "AWS::StackName"
+        PMUserArn1: !Ref "PMUserArn1"
+        PMUserArn2: !Ref "PMUserArn2"
+

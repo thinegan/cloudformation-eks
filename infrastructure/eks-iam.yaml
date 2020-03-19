@@ -1,0 +1,56 @@
+# Note: IAM Role to allow user to assume access to EKS
+#
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+    Role to Allow users to assume access to EKS.
+
+Parameters: 
+
+  PMServerEnv:
+    Description: "Server Environment name."
+    ConstraintDescription: "Invalid environment name. Choose an environment from the list"
+    Type: "String"
+
+  PMUserArn1:
+    Description: "User Arn 1"
+    Type: "String"
+
+  PMUserArn2:
+    Description: "User Arn 2"
+    Type: "String"
+
+Resources:
+
+  IAMEKS:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: !Sub "${PMServerEnv}-EKSrole"
+      ManagedPolicyArns: 
+        - "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+        - "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - 
+            Effect: "Allow"
+            Principal: 
+              Service: 
+                - "eks.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+          - 
+            Effect: "Allow"
+            Principal: 
+              AWS: 
+                - "${PMUserArn1}"
+                - "${PMUserArn2}"
+            Action: 
+              - "sts:AssumeRole"
+      Path: "/"
+
+Outputs:
+
+  IAMEKSArn:
+    Description: "Role Arn to Allow users to assume access to EKS"
+    Value: !GetAtt "IAMEKS.Arn"
