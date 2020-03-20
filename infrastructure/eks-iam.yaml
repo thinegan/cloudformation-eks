@@ -43,8 +43,8 @@ Resources:
             Effect: "Allow"
             Principal: 
               AWS: 
-                - "${PMUserArn1}"
-                - "${PMUserArn2}"
+                - !Ref "PMUserArn1"
+                - !Ref "PMUserArn2"
             Action: 
               - "sts:AssumeRole"
       Path: "/"
