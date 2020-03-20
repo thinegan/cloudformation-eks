@@ -1,0 +1,72 @@
+# Note : Security Group for EKS and Load Balancer.
+#
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+    This template contains the Security Groups and Network Access Control
+    required by our entire stack. We create them in a seperate nested template,
+    so they can be referenced by all of the other nested templates.
+
+Parameters:
+
+  PMServerEnv:
+    Description: "Server Environment name."
+    ConstraintDescription: "Choose an Environment from the drop down"
+    Type: "String"
+
+  PMVPC:
+    Description: "VPC to launch instances into"
+    Type: "AWS::EC2::VPC::Id"
+
+  PMOWNIP:
+    Description: "Update this with your own office/home public ip address"
+    Type: "String"
+
+Resources:
+
+  MyEKSSG:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties: 
+      VpcId: !Ref "PMVPC"
+      GroupDescription: "EKS Cluster Security Group"
+      SecurityGroupEgress:
+        - IpProtocol: '-1'
+          CidrIp: '0.0.0.0/0'
+      Tags:
+        - Key: "Name"
+          Value: !Sub "${PMServerEnv}-MyEKSSG"
+
+  MyEKSLBSG:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties: 
+      VpcId: !Ref "PMVPC"
+      GroupDescription: "EKS ALB/ELB Cluster Security Group"
+      SecurityGroupIngress:
+        - FromPort: "80"
+          ToPort: "80"
+          IpProtocol: "tcp"
+          CidrIp: '0.0.0.0/0'
+        - FromPort: "443"
+          ToPort: "443"
+          IpProtocol: "tcp"
+          CidrIp: '0.0.0.0/0'
+      SecurityGroupEgress:
+        - IpProtocol: '-1'
+          CidrIp: '0.0.0.0/0'
+      Tags:
+        - Key: "Name"
+          Value: !Sub "${PMServerEnv}-MyEKSLBSG"
+
+Outputs:
+
+  MyEKSSG: 
+    Description: "A reference to the security group for EKS cluster"
+    Value: !Ref "MyEKSSG"
+    Export:
+      Name: !Sub "${PMServerEnv}-MyEKSSG"
+
+  MyEKSLBSG: 
+    Description: "A reference to the security group for EKS ELB/ALB cluster"
+    Value: !Ref "MyEKSLBSG"
+    Export:
+      Name: !Sub "${PMServerEnv}-MyEKSLBSG"

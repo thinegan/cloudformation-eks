@@ -120,3 +120,17 @@ Resources:
         PMUserArn1: !Ref "PMUserArn1"
         PMUserArn2: !Ref "PMUserArn2"
 
+  MySecurityGroup:
+    Type: "AWS::CloudFormation::Stack"
+    # Condition: "UseProdEnv"
+    DependsOn:
+    - "MyIAMRole"
+    Properties:
+      TemplateURL: !Sub "${PMTemplateURL}/eks-securitygroup.yaml"
+      TimeoutInMinutes: '5'
+      Parameters:
+        PMServerEnv: !Ref "AWS::StackName"
+        PMOWNIP: !Ref "PMOWNIP"
+        PMVPC:
+          Fn::ImportValue: !Sub "${PMEnvVPC}-VPC"
+
