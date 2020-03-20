@@ -1,0 +1,64 @@
+# Note, Build Elastic Kubernetes Service (EKS) Cluster.
+#
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+    This template deploys an Elastic Kubernetes Service (EKS) Cluster.
+Parameters: 
+
+  PMServerEnv:
+    Description: "Server Environment name."
+    Type: "String"
+
+  PMEnvVPC:
+    Description: "A reference to the VPC Env"
+    Type: "String"
+
+  PMEKSSG:
+    Description: "Select the Security Group to use for the EKS Cluster"
+    Type: "AWS::EC2::SecurityGroup::Id"
+
+  PMRoleArn:
+    Description: "EKS Role"
+    Type: "String"
+
+  PMEKSVersion:
+    Description: "EKS Cluster Version."
+    Type: "String"
+
+Resources:
+
+  MyEKSHost:
+    Type: "AWS::EKS::Cluster"
+    Properties:
+      Name: !Ref "PMServerEnv"
+      Version: !Ref "PMEKSVersion"
+      RoleArn: !Ref "PMRoleArn"
+      ResourcesVpcConfig:
+        SecurityGroupIds:
+          - !Ref "PMEKSSG"
+        SubnetIds:
+          - Fn::ImportValue: !Sub "${PMEnvVPC}-PublicSubnet1"
+          - Fn::ImportValue: !Sub "${PMEnvVPC}-PublicSubnet2"
+          - Fn::ImportValue: !Sub "${PMEnvVPC}-PublicSubnet3"
+          - Fn::ImportValue: !Sub "${PMEnvVPC}-PrivateSubnet1"
+          - Fn::ImportValue: !Sub "${PMEnvVPC}-PrivateSubnet2"
+          - Fn::ImportValue: !Sub "${PMEnvVPC}-PrivateSubnet3"
+
+Outputs:
+
+  EKSCluster:
+    Description: "A reference to the EKS Cluster"
+    Value: !Ref "MyEKSHost"
+
+  EKSClusterName:
+    Description: "EKS Cluster Name"
+    Value: !Ref "PMServerEnv"
+
+  EKSClusterEndpoint:
+    Description: "EKS Cluster Endpoint"
+    Value: !GetAtt "MyEKSHost.Endpoint"
+
+  EKSClusterCAData:
+    Description: "EKS Cluster CertificateAuthorityData"
+    Value: !GetAtt "MyEKSHost.CertificateAuthorityData"
