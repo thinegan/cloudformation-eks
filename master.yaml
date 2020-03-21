@@ -149,13 +149,13 @@ Resources:
         PMEKSSG: !GetAtt "MySecurityGroup.Outputs.MyEKSSG"
         PMRoleArn: !GetAtt "MyIAMRole.Outputs.IAMEKSArn"
 
-  MyEKSNodeProfile:
-    Type: "AWS::CloudFormation::Stack"
-    # Condition: "UseProdEnv"
-    DependsOn:
-    - "MyEKSCluster"
-    Properties:
-      TemplateURL: !Sub "${PMTemplateURL}/node-instance-profile.yaml"
-      TimeoutInMinutes: '30'
-      Parameters:
-        PMServerEnv: !Ref "AWS::StackName"
+  # MyEKSNodeProfile:
+  #   Type: "AWS::CloudFormation::Stack"
+  #   # Condition: "UseProdEnv"
+  #   DependsOn:
+  #   - "MyEKSCluster"
+  #   Properties:
+  #     TemplateURL: !Sub "${PMTemplateURL}/node-instance-profile.yaml"
+  #     TimeoutInMinutes: '30'
+  #     Parameters:
+  #       PMServerEnv: !Ref "AWS::StackName"
