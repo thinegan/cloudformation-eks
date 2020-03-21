@@ -22,7 +22,7 @@ Resources:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: 2012-10-17
+        Version: '2012-10-17'
         Statement:
           - Effect: Allow
             Principal:
@@ -30,9 +30,6 @@ Resources:
             Action: sts:AssumeRole
       Path: "/"
       ManagedPolicyArns:
-        # - !Ref ALBIngressControllerIAMPolicy
-        # - !Ref EKSExternalDNSPolicy
-        # - !Ref EKSClusterAutoScalerPolicy
         - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
         - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
         - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
@@ -44,7 +41,7 @@ Resources:
     Properties:
       PolicyName: !Sub "${PMServerEnv}-ALBIngressControllerIAMPolicy"
       PolicyDocument:
-        Version: 2012-10-17
+        Version: '2012-10-17'
         Statement:
           - Effect: Allow
             Action:
@@ -116,38 +113,42 @@ Resources:
       Roles:
         - !Ref NodeInstanceRole
 
-  # # EKS External DNS Policy
-  # EKSExternalDNSPolicy:
-  #   Type: 'AWS::IAM::Policy'
-  #   Properties:
-  #     PolicyName: !Sub "${PMServerEnv}-EKSExternalDNSPolicy"
-  #     PolicyDocument:
-  #       Version: 2012-10-17
-  #       Statement:
-  #         - Effect: Allow
-  #           Action:
-  #             - route53:ListHostedZones
-  #             - route53:ListResourceRecordSets
-  #             - route53:ChangeResourceRecordSets
-  #           Resource: '*'
+  # EKS External DNS Policy
+  EKSExternalDNSPolicy:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyName: !Sub "${PMServerEnv}-EKSExternalDNSPolicy"
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - route53:ListHostedZones
+              - route53:ListResourceRecordSets
+              - route53:ChangeResourceRecordSets
+            Resource: '*'
+      Roles:
+        - !Ref NodeInstanceRole
 
-  # # EKS Cluster AutoScaling Policy
-  # EKSClusterAutoScalerPolicy:
-  #   Type: 'AWS::IAM::Policy'
-  #   Properties:
-  #     PolicyName: !Sub "${PMServerEnv}-EKSClusterAutoScalerPolicy"
-  #     PolicyDocument:
-  #       Version: 2012-10-17
-  #       Statement:
-  #         - Effect: Allow
-  #           Action:
-  #             - autoscaling:DescribeAutoScalingGroups
-  #             - autoscaling:DescribeAutoScalingInstances
-  #             - autoscaling:DescribeLaunchConfigurations
-  #             - autoscaling:DescribeTags
-  #             - autoscaling:SetDesiredCapacity
-  #             - autoscaling:TerminateInstanceInAutoScalingGroup
-  #           Resource: '*'
+  # EKS Cluster AutoScaling Policy
+  EKSClusterAutoScalerPolicy:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyName: !Sub "${PMServerEnv}-EKSClusterAutoScalerPolicy"
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - autoscaling:DescribeAutoScalingGroups
+              - autoscaling:DescribeAutoScalingInstances
+              - autoscaling:DescribeLaunchConfigurations
+              - autoscaling:DescribeTags
+              - autoscaling:SetDesiredCapacity
+              - autoscaling:TerminateInstanceInAutoScalingGroup
+            Resource: '*'
+      Roles:
+        - !Ref NodeInstanceRole
 
 Outputs:
 
