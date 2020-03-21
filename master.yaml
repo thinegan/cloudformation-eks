@@ -159,3 +159,32 @@ Resources:
       TimeoutInMinutes: '30'
       Parameters:
         PMServerEnv: !Ref "AWS::StackName"
+
+  MyEKSWorkerGeneralNodes:
+    Type: "AWS::CloudFormation::Stack"
+    # Condition: "UseProdEnv"
+    DependsOn:
+    - "MyEKSNodeProfile"
+    Properties:
+      TemplateURL: !Sub "${PMTemplateURL}/amazon-eks-nodegroup-general.yaml"
+      TimeoutInMinutes: '30'
+      Parameters:
+        PMServerEnv: !Ref "AWS::StackName"
+        PMVPC:
+          Fn::ImportValue: !Sub "${PMEnvVPC}-VPC"
+        ClusterName: !GetAtt "MyEKSCluster.Outputs.EKSClusterName"
+        ClusterControlPlaneSecurityGroup: !GetAtt "MySecurityGroup.Outputs.MyEKSSG"
+        ClusterLoadBalancerSecurityGroup: !GetAtt "MySecurityGroup.Outputs.MyEKSLBSG"
+        NodeInstanceProfile: !GetAtt "MyEKSNodeProfile.Outputs.NodeInstanceProfile"
+        NodeAutoScalingGroupMinSize: !Ref "PMGenNodeASGMinSize"
+        NodeAutoScalingGroupDesiredSize: !Ref "PMGenNodeASGDesireSize"
+        NodeAutoScalingGroupMaxSize: !Ref "PMGenNodeASGMaxSize"
+        InstanceTypesOverride: !Ref "PMGenNodeTypeOverride"
+        NodeGroupName: !Ref "PMGenNodeGroupName"
+        NodeImageId: !Ref "PMNodeImageId"
+        NodeVolumeSize: !Ref "PMNodeVolumeSize"
+        KeyName: !Ref "PMKeyName"
+        VpcId:
+          Fn::ImportValue: !Sub "${PMEnvVPC}-VPC"
+        Subnets:
+          Fn::ImportValue: !Sub "${PMEnvVPC}-PrivateSubnets"
