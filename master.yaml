@@ -122,6 +122,9 @@ Resources:
 
   MyPolicy:
     Type: "AWS::CloudFormation::Stack"
+    # Condition: "UseProdEnv"
+    DependsOn:
+    - "MyIAMRole"
     Properties:
       TemplateURL: !Sub "${PMTemplateURL}/eks-policy.yaml"
       TimeoutInMinutes: '5'
