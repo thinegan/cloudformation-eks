@@ -113,6 +113,8 @@ Resources:
               - tag:TagResources
               - waf:GetWebACL
             Resource: '*'
+      Roles:
+        - !Ref NodeInstanceRole
 
   # # EKS External DNS Policy
   # EKSExternalDNSPolicy:
