@@ -188,3 +188,53 @@ Resources:
           Fn::ImportValue: !Sub "${PMEnvVPC}-VPC"
         Subnets:
           Fn::ImportValue: !Sub "${PMEnvVPC}-PrivateSubnets"
+
+  MyEKSHighNodes:
+    Type: "AWS::CloudFormation::Stack"
+    # Condition: "UseProdEnv"
+    DependsOn:
+    - "MyEKSWorkerGeneralNodes"
+    Properties:
+      TemplateURL: !Sub "${PMTemplateURL}/amazon-eks-nodegroup-high.yaml"
+      TimeoutInMinutes: '30'
+      Parameters:
+        PMServerEnv: !Ref "AWS::StackName"
+        PMVPC:
+          Fn::ImportValue: !Sub "${PMEnvVPC}-VPC"
+        ClusterName: !GetAtt "MyEKSCluster.Outputs.EKSClusterName"
+        ClusterControlPlaneSecurityGroup: !GetAtt "MySecurityGroup.Outputs.MyEKSSG"
+        ClusterLoadBalancerSecurityGroup: !GetAtt "MySecurityGroup.Outputs.MyEKSLBSG"
+        NodeInstanceProfile: !GetAtt "MyEKSNodeProfile.Outputs.NodeInstanceProfile"
+        ExistingNodeSecurityGroups: !GetAtt "MyEKSWorkerGeneralNodes.Outputs.NodeSecurityGroup"
+        NodeAutoScalingGroupMinSize: !Ref "PMHiNodeASGMinSize"
+        NodeAutoScalingGroupDesiredSize: !Ref "PMHiNodeASGDesireSize"
+        NodeAutoScalingGroupMaxSize: !Ref "PMHiNodeASGMaxSize"
+        InstanceTypesOverride: !Ref "PMHiNodeTypeOverride"
+        NodeGroupName: !Ref "PMHiNodeGroupName"
+        NodeImageId: !Ref "PMNodeImageId"
+        NodeVolumeSize: !Ref "PMNodeVolumeSize"
+        KeyName: !Ref "PMKeyName"
+        VpcId:
+          Fn::ImportValue: !Sub "${PMEnvVPC}-VPC"
+        Subnets:
+          Fn::ImportValue: !Sub "${PMEnvVPC}-PrivateSubnets"
+
+Outputs:
+
+  MyNodeInstanceRole:
+    Description: "A reference to Node Instance Role"
+    Value: !GetAtt "MyEKSNodeProfile.Outputs.NodeInstanceRole"
+    Export:
+      Name: !Sub "${AWS::StackName}-MyEKSNodeProfile"
+
+  MyGeneralNodeGroup:
+    Description: "A reference to Node Group Role ID"
+    Value: !GetAtt "MyEKSWorkerGeneralNodes.Outputs.NodeGroup"
+    Export:
+      Name: !Sub "${AWS::StackName}-MyGeneralNodeGroup"
+
+  MyHighNodeGroup:
+    Description: "A reference to Node Group Role ID"
+    Value: !GetAtt "MyEKSHighNodes.Outputs.NodeGroup"
+    Export:
+      Name: !Sub "${AWS::StackName}-MyHighNodeGroup"
