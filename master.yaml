@@ -120,31 +120,53 @@ Resources:
         PMUserArn1: !Ref "PMUserArn1"
         PMUserArn2: !Ref "PMUserArn2"
 
-  MySecurityGroup:
+  MyPolicy:
     Type: "AWS::CloudFormation::Stack"
-    # Condition: "UseProdEnv"
-    DependsOn:
-    - "MyIAMRole"
     Properties:
-      TemplateURL: !Sub "${PMTemplateURL}/eks-securitygroup.yaml"
+      TemplateURL: !Sub "${PMTemplateURL}/eks-policy.yaml"
       TimeoutInMinutes: '5'
       Parameters:
         PMServerEnv: !Ref "AWS::StackName"
-        PMOWNIP: !Ref "PMOWNIP"
-        PMVPC:
-          Fn::ImportValue: !Sub "${PMEnvVPC}-VPC"
 
-  MyEKSCluster:
-    Type: "AWS::CloudFormation::Stack"
-    # Condition: "UseProdEnv"
-    DependsOn:
-    - "MySecurityGroup"
-    Properties:
-      TemplateURL: !Sub "${PMTemplateURL}/eks-cluster.yaml"
-      TimeoutInMinutes: '30'
-      Parameters:
-        PMServerEnv: !Ref "AWS::StackName"
-        PMEnvVPC: !Ref "PMEnvVPC" 
-        PMEKSVersion: !Ref "PMEKSVersion"
-        PMEKSSG: !GetAtt "MySecurityGroup.Outputs.MyEKSSG"
-        PMRoleArn: !GetAtt "MyIAMRole.Outputs.IAMEKSArn"
+  # MySecurityGroup:
+  #   Type: "AWS::CloudFormation::Stack"
+  #   # Condition: "UseProdEnv"
+  #   DependsOn:
+  #   - "MyIAMRole"
+  #   Properties:
+  #     TemplateURL: !Sub "${PMTemplateURL}/eks-securitygroup.yaml"
+  #     TimeoutInMinutes: '5'
+  #     Parameters:
+  #       PMServerEnv: !Ref "AWS::StackName"
+  #       PMOWNIP: !Ref "PMOWNIP"
+  #       PMVPC:
+  #         Fn::ImportValue: !Sub "${PMEnvVPC}-VPC"
+
+  # MyEKSCluster:
+  #   Type: "AWS::CloudFormation::Stack"
+  #   # Condition: "UseProdEnv"
+  #   DependsOn:
+  #   - "MySecurityGroup"
+  #   Properties:
+  #     TemplateURL: !Sub "${PMTemplateURL}/eks-cluster.yaml"
+  #     TimeoutInMinutes: '30'
+  #     Parameters:
+  #       PMServerEnv: !Ref "AWS::StackName"
+  #       PMEnvVPC: !Ref "PMEnvVPC" 
+  #       PMEKSVersion: !Ref "PMEKSVersion"
+  #       PMEKSSG: !GetAtt "MySecurityGroup.Outputs.MyEKSSG"
+  #       PMRoleArn: !GetAtt "MyIAMRole.Outputs.IAMEKSArn"
+
+  # MyEKSNodeProfile:
+  #   Type: "AWS::CloudFormation::Stack"
+  #   # Condition: "UseProdEnv"
+  #   DependsOn:
+  #   - "MyEKSCluster"
+  #   Properties:
+  #     TemplateURL: !Sub "${PMTemplateURL}/node-instance-profile.yaml"
+  #     TimeoutInMinutes: '30'
+  #     Parameters:
+  #       PMServerEnv: !Ref "AWS::StackName"
+  #       PMALBIngressControllerIAMPolicy: !Ref "PMALBIngressControllerIAMPolicy" 
+  #       PMEKSExternalDNSPolicy: !Ref "PMEKSExternalDNSPolicy" 
+  #       PMEKSClusterAutoScalerPolicy: !Ref "PMEKSClusterAutoScalerPolicy"

@@ -1,0 +1,63 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: Amazon Node Instance Profile
+
+Parameters:
+
+  PMServerEnv:
+    Description: "Server Environment name."
+    ConstraintDescription: "Choose an Environment from the drop down"
+    Type: "String"
+
+  PMALBIngressControllerIAMPolicy:
+    Description: "The node instance role policy."
+    Type: "String"
+
+  PMEKSExternalDNSPolicy:
+    Description: "The node instance role policy."
+    Type: "String"
+
+  PMEKSClusterAutoScalerPolicy:
+    Description: "The node instance role policy."
+    Type: "String"
+
+Resources:
+
+  NodeInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+        - !Ref NodeInstanceRole
+
+  NodeInstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      Path: "/"
+      ManagedPolicyArns:
+        - !Ref PMALBIngressControllerIAMPolicy
+        - !Ref PMEKSExternalDNSPolicy
+        - !Ref PMEKSClusterAutoScalerPolicy
+        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        
+
+Outputs:
+
+  NodeInstanceRole:
+    Description: The node instance role
+    Value: !GetAtt NodeInstanceRole.Arn
+
+  NodeInstanceProfile:
+    Description: The Existing Node Instance Profile
+    Value: !GetAtt NodeInstanceProfile.Arn
+
